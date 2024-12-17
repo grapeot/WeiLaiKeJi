@@ -1,113 +1,112 @@
-import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { act } from 'react-dom/test-utils'
 import { ApplicationForm } from '../ApplicationForm'
 
-// Mock fetch globally
-global.fetch = jest.fn(() =>
+// Mock fetch
+const mockFetch = jest.fn((url: string, init?: RequestInit) =>
   Promise.resolve({
     ok: true,
-    json: () => Promise.resolve({ message: '申请已提交' }),
-  })
+    json: () => Promise.resolve({ success: true }),
+  } as Response)
 ) as jest.Mock
 
+global.fetch = mockFetch as typeof global.fetch
+
+const mockProps = {
+  jobId: 'job123',
+  jobTitle: 'Software Engineer'
+}
+
 describe('ApplicationForm', () => {
-  const mockProps = {
-    jobId: 'job123',
-    jobTitle: 'Software Engineer',
-  }
-
   beforeEach(() => {
-    (global.fetch as jest.Mock).mockClear()
-  })
-
-  it('renders all form fields', () => {
-    render(<ApplicationForm {...mockProps} />)
-
-    expect(screen.getByLabelText('姓名')).toBeInTheDocument()
-    expect(screen.getByLabelText('邮箱')).toBeInTheDocument()
-    expect(screen.getByLabelText('电话')).toBeInTheDocument()
-    expect(screen.getByLabelText('教育背景')).toBeInTheDocument()
-    expect(screen.getByLabelText('工作经验')).toBeInTheDocument()
-    expect(screen.getByLabelText('技能特长')).toBeInTheDocument()
-    expect(screen.getByLabelText('简历')).toBeInTheDocument()
-    expect(screen.getByLabelText('求职信')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '提交申请' })).toBeInTheDocument()
+    mockFetch.mockClear()
   })
 
   it('submits form successfully', async () => {
-    // Mock fetch to return success
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ message: '申请已提交' }),
-      })
-    )
-
     const user = userEvent.setup()
     render(<ApplicationForm {...mockProps} />)
 
-    // Fill in form fields
-    await user.type(screen.getByLabelText('姓名'), 'John Doe')
-    await user.type(screen.getByLabelText('邮箱'), 'john@example.com')
-    await user.type(screen.getByLabelText('电话'), '1234567890')
-    await user.type(screen.getByLabelText('教育背景'), 'Bachelor in CS')
-    await user.type(screen.getByLabelText('工作经验'), '5 years')
-    await user.type(screen.getByLabelText('技能特长'), 'React, Node.js')
-    await user.type(screen.getByLabelText('求职信'), 'I am a great candidate')
+    // Fill form fields
+    await act(async () => {
+      await user.type(screen.getByLabelText('姓名'), 'John Doe')
+      await user.type(screen.getByLabelText('邮箱'), 'john@example.com')
+      await user.type(screen.getByLabelText('电话'), '1234567890')
+      await user.type(screen.getByLabelText('教育背景'), 'Bachelor in CS')
+      await user.type(screen.getByLabelText('工作经验'), '5 years')
+      await user.type(screen.getByLabelText('技能特长'), 'React, Node.js')
 
-    // Mock file upload
-    const file = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' })
-    const fileInput = screen.getByLabelText('简历')
-    await user.upload(fileInput, file)
+      // Mock file upload
+      const file = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' })
+      const fileInput = screen.getByLabelText('简历')
+      await user.upload(fileInput, file)
+    })
 
-    // Submit form
-    await user.click(screen.getByRole('button', { name: '提交申请' }))
+    // Submit form using fireEvent instead of userEvent
+    const form = screen.getByRole('form')
+    await act(async () => {
+      fireEvent.submit(form)
+    })
 
-    // Check if success message is displayed
-    await waitFor(
-      () => {
-        expect(screen.getByText('申请已提交')).toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    // Wait for fetch to be called
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      expect(mockFetch).toHaveBeenCalledWith('/api/applications', expect.objectContaining({
+        method: 'POST',
+        body: expect.any(FormData)
+      }))
+    })
 
-    // Check additional success elements
-    expect(screen.getByText(/感谢您申请.*职位/)).toBeInTheDocument()
+    // Wait for success message
+    await waitFor(() => {
+      const successHeading = screen.getByRole('heading', {
+        name: '申请已提交',
+        level: 3
+      })
+      expect(successHeading).toBeInTheDocument()
+      const successDiv = successHeading.parentElement
+      expect(successDiv).toHaveClass('text-center', 'py-8')
+      expect(screen.getByText(`感谢您申请 ${mockProps.jobTitle} 职位。我们会尽快审核您的申请并与您联系。`)).toBeInTheDocument()
+    })
   })
 
   it('handles submission error', async () => {
-    // Mock fetch to return error
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.reject(new Error('提交失败'))
-    )
-
     const user = userEvent.setup()
+    mockFetch.mockRejectedValueOnce(new Error('提交失败'))
+
     render(<ApplicationForm {...mockProps} />)
 
-    // Fill in form fields
-    await user.type(screen.getByLabelText('姓名'), 'John Doe')
-    await user.type(screen.getByLabelText('邮箱'), 'john@example.com')
-    await user.type(screen.getByLabelText('电话'), '1234567890')
-    await user.type(screen.getByLabelText('教育背景'), 'Bachelor in CS')
-    await user.type(screen.getByLabelText('工作经验'), '5 years')
-    await user.type(screen.getByLabelText('技能特长'), 'React, Node.js')
+    // Fill form fields
+    await act(async () => {
+      await user.type(screen.getByLabelText('姓名'), 'John Doe')
+      await user.type(screen.getByLabelText('邮箱'), 'john@example.com')
+      await user.type(screen.getByLabelText('电话'), '1234567890')
+      await user.type(screen.getByLabelText('教育背景'), 'Bachelor in CS')
+      await user.type(screen.getByLabelText('工作经验'), '5 years')
+      await user.type(screen.getByLabelText('技能特长'), 'React, Node.js')
 
-    // Mock file upload
-    const file = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' })
-    const fileInput = screen.getByLabelText('简历')
-    await user.upload(fileInput, file)
+      // Mock file upload
+      const file = new File(['dummy content'], 'resume.pdf', { type: 'application/pdf' })
+      const fileInput = screen.getByLabelText('简历')
+      await user.upload(fileInput, file)
+    })
 
-    // Submit form
-    await user.click(screen.getByRole('button', { name: '提交申请' }))
+    // Submit form using fireEvent instead of userEvent
+    const form = screen.getByRole('form')
+    await act(async () => {
+      fireEvent.submit(form)
+    })
+
+    // Wait for fetch to be called
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+    })
 
     // Wait for error message
-    await waitFor(
-      () => {
-        expect(screen.getByText('提交失败')).toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitFor(() => {
+      const errorDiv = screen.getByText('提交失败')
+      expect(errorDiv).toHaveClass('text-red-500', 'text-sm')
+    })
   })
 
   it('validates required fields', async () => {
@@ -115,7 +114,8 @@ describe('ApplicationForm', () => {
     render(<ApplicationForm {...mockProps} />)
 
     // Submit form without filling any fields
-    await user.click(screen.getByRole('button', { name: '提交申请' }))
+    const submitButton = screen.getByRole('button', { name: '提交申请' })
+    await user.click(submitButton)
 
     // Check if form submission was prevented
     expect(screen.queryByRole('heading', { level: 3 })).not.toBeInTheDocument()

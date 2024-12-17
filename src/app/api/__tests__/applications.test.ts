@@ -1,11 +1,10 @@
 import { NextRequest } from 'next/server'
 import { POST } from '../applications/route'
-import prisma from '@/lib/prisma'
+import { prisma } from '@/lib/prisma'
 
 // Mock Prisma
 jest.mock('@/lib/prisma', () => ({
-  __esModule: true,
-  default: {
+  prisma: {
     application: {
       create: jest.fn(),
     },
@@ -14,14 +13,26 @@ jest.mock('@/lib/prisma', () => ({
 
 // Mock fs/promises
 jest.mock('fs/promises', () => ({
-  writeFile: jest.fn(),
-  mkdir: jest.fn(),
+  writeFile: jest.fn().mockResolvedValue(undefined),
+  mkdir: jest.fn().mockResolvedValue(undefined),
 }))
 
 // Mock Request
 global.Request = class extends Request {
+  private formDataInstance: FormData | null = null
+
   constructor(input: RequestInfo | URL, init?: RequestInit) {
     super(input, init)
+    if (init?.body instanceof FormData) {
+      this.formDataInstance = init.body
+    }
+  }
+
+  async formData() {
+    if (!this.formDataInstance) {
+      throw new Error('No FormData available')
+    }
+    return this.formDataInstance
   }
 }
 
@@ -39,7 +50,7 @@ describe('Applications API', () => {
     formData.append('education', 'Bachelor')
     formData.append('experience', '5 years')
     formData.append('skills', 'React, Node.js')
-    
+
     const file = new File(['resume content'], 'resume.pdf', { type: 'application/pdf' })
     formData.append('resume', file)
 
@@ -54,8 +65,12 @@ describe('Applications API', () => {
       email: 'john@example.com',
       phone: '1234567890',
       jobId: 'job123',
-      resumePath: '/uploads/resume.pdf',
-      createdAt: new Date(),
+      education: 'Bachelor',
+      experience: '5 years',
+      skills: 'React, Node.js',
+      resume: expect.any(String),
+      coverLetter: null,
+      createdAt: expect.any(Date),
     }
 
     ;(prisma.application.create as jest.Mock).mockResolvedValue(mockPrismaResponse)
@@ -85,7 +100,7 @@ describe('Applications API', () => {
 
     const response = await POST(request)
     expect(response.status).toBe(400)
-    
+
     const responseData = await response.json()
     expect(responseData).toEqual({
       error: '请上传简历文件',
@@ -98,7 +113,7 @@ describe('Applications API', () => {
     formData.append('email', 'john@example.com')
     formData.append('phone', '1234567890')
     formData.append('jobId', 'job123')
-    
+
     const file = new File(['resume content'], 'resume.pdf', { type: 'application/pdf' })
     formData.append('resume', file)
 
@@ -117,4 +132,3 @@ describe('Applications API', () => {
       error: '申请提交失败，请稍后再试',
     })
   })
-})

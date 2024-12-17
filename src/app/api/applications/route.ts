@@ -1,32 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 
 export async function POST(request: NextRequest) {
+  let formData
   try {
-    const formData = await request.formData()
-    
-    // 处理文件上传
-    const resumeFile = formData.get('resume') as File
-    if (!resumeFile) {
-      return NextResponse.json(
-        { error: '请上传简历' },
-        { status: 400 }
-      )
-    }
+    formData = await request.formData()
+  } catch (error) {
+    console.error('Form data parsing error:', error)
+    return NextResponse.json(
+      { error: '申请提交失败，请稍后再试' },
+      { status: 500 }
+    )
+  }
 
-    // 生成唯一的文件名
+  // Check for required resume file
+  const resumeFile = formData.get('resume') as File
+  if (!resumeFile) {
+    return NextResponse.json(
+      { error: '请上传简历文件' },
+      { status: 400 }
+    )
+  }
+
+  try {
+    // Create uploads directory if it doesn't exist
+    const uploadDir = join(process.cwd(), 'uploads')
+    await mkdir(uploadDir, { recursive: true })
+
+    // Generate unique filename and save file
     const bytes = await resumeFile.arrayBuffer()
     const buffer = Buffer.from(bytes)
     const filename = `${Date.now()}-${resumeFile.name}`
-    const uploadDir = join(process.cwd(), 'uploads')
     const filepath = join(uploadDir, filename)
-    
-    // 保存文件
     await writeFile(filepath, buffer)
 
-    // 保存申请信息到数据库
+    // Save application to database
     const application = await prisma.application.create({
       data: {
         jobId: formData.get('jobId') as string,
@@ -41,11 +51,11 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    return NextResponse.json(application)
+    return NextResponse.json(application, { status: 200 })
   } catch (error) {
-    console.error('Application submission error:', error)
+    console.error('Database or file system error:', error)
     return NextResponse.json(
-      { error: '提交申请失败' },
+      { error: '申请提交失败，请稍后再试' },
       { status: 500 }
     )
   }
@@ -59,7 +69,7 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(applications)
+    return NextResponse.json(applications, { status: 200 })
   } catch (error) {
     console.error('Failed to fetch applications:', error)
     return NextResponse.json(

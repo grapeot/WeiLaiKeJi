@@ -3,23 +3,59 @@
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
 
+interface Application {
+  id: number
+  name: string
+  email: string
+  phone: string
+  jobId: string
+  resume: string
+  createdAt: string
+}
+
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState([])
+  const [applications, setApplications] = useState<Application[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchApplications = async () => {
-      const response = await fetch('http://localhost:8080/api/applications')
-      const data = await response.json()
-      setApplications(data)
+      try {
+        setLoading(true)
+        const response = await fetch('http://localhost:8080/api/applications')
+        if (!response.ok) {
+          throw new Error('Failed to fetch applications')
+        }
+        const data = await response.json()
+        setApplications(data)
+        setError(null)
+      } catch (err) {
+        console.error('Error fetching applications:', err)
+        setError('Failed to load applications')
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchApplications()
   }, [])
 
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>
+  }
+
+  if (applications.length === 0) {
+    return <div className="text-center py-8">暂无申请记录</div>
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">职位申请管理</h1>
-      
+
       <div className="bg-white shadow-sm rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
