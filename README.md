@@ -37,8 +37,8 @@
 
 1. 克隆项目并安装依赖：
 ```bash
-git clone <repository-url>
-cd career-site
+git clone git@github.com:grapeot/WeiLaiKeJi.git
+cd WeiLaiKeJi
 npm install
 ```
 
@@ -46,6 +46,10 @@ npm install
 ```bash
 cp .env.example .env
 ```
+然后编辑 `.env` 文件，设置以下环境变量：
+- `DATABASE_URL`: 数据库连接URL
+- `ADMIN_USER`: 管理后台用户名
+- `ADMIN_PASSWORD`: 管理后台密码
 
 3. 初始化数据库：
 ```bash
