@@ -22,8 +22,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# env files
+.env
 .env*.local
+
+# uploads
+/uploads/*
+!uploads/.gitkeep
 
 # vercel
 .vercel
