@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import JobsPage from '../page'
 import {
   getAllJobs,
@@ -72,6 +72,7 @@ describe('JobsPage', () => {
   const mockLocations = ['北京', '上海']
 
   beforeEach(() => {
+    jest.clearAllMocks()
     ;(getAllJobs as jest.Mock).mockReturnValue(mockJobs)
     ;(getAllDepartments as jest.Mock).mockReturnValue(mockDepartments)
     ;(getAllLocations as jest.Mock).mockReturnValue(mockLocations)
@@ -79,62 +80,102 @@ describe('JobsPage', () => {
 
   it('renders job list page with filters', () => {
     render(<JobsPage />)
-    
-    // Check if page title is rendered
+
+    // Check page title and description
     expect(screen.getByText('加入我们')).toBeInTheDocument()
-    
-    // Check if filters are rendered
+    expect(screen.getByText('探索激动人心的职业机会，与我们一起创造未来')).toBeInTheDocument()
+
+    // Check filters
     expect(screen.getByRole('combobox', { name: '按部门筛选' })).toBeInTheDocument()
     expect(screen.getByRole('combobox', { name: '按地点筛选' })).toBeInTheDocument()
-    
-    // Check if job cards are rendered
+
+    // Check job cards
     mockJobs.forEach(job => {
-      expect(screen.getByText(job.title)).toBeInTheDocument()
-      expect(screen.getByText(`${mockDepartments.find(d => d.id === job.department)?.name} · ${job.location}`)).toBeInTheDocument()
+      const jobCard = screen.getByTestId(`job-card-${job.id}`)
+      expect(jobCard).toBeInTheDocument()
+
+      // Check job details
+      expect(within(jobCard).getByText(job.title)).toBeInTheDocument()
+      expect(within(jobCard).getByTestId(`job-location-${job.id}`)).toHaveTextContent(job.location)
+      expect(within(jobCard).getByTestId(`job-type-${job.id}`)).toHaveTextContent(job.type)
+      expect(within(jobCard).getByText(job.description)).toBeInTheDocument()
+      expect(within(jobCard).getByText(`发布日期：${job.postedDate}`)).toBeInTheDocument()
+
+      // Check details link
+      const detailsLink = within(jobCard).getByText('查看详情')
+      expect(detailsLink).toBeInTheDocument()
+      expect(detailsLink.closest('a')).toHaveAttribute('href', `/jobs/${job.id}`)
     })
   })
 
-  it('filters jobs by department', () => {
+  it('filters jobs by department', async () => {
     render(<JobsPage />)
-    
-    // Find and change the department select
+
+    // Select engineering department
     const departmentSelect = screen.getByRole('combobox', { name: '按部门筛选' })
     fireEvent.change(departmentSelect, { target: { value: 'engineering' } })
-    
+
     // Check if only engineering jobs are shown
-    expect(screen.getByText('Software Engineer')).toBeInTheDocument()
-    expect(screen.queryByText('Product Manager')).not.toBeInTheDocument()
+    const engineeringJobs = mockJobs.filter(job => job.department === 'engineering')
+    const nonEngineeringJobs = mockJobs.filter(job => job.department !== 'engineering')
+
+    // Verify engineering jobs are visible
+    engineeringJobs.forEach(job => {
+      expect(screen.getByTestId(`job-card-${job.id}`)).toBeInTheDocument()
+    })
+
+    // Verify non-engineering jobs are not visible
+    nonEngineeringJobs.forEach(job => {
+      expect(screen.queryByTestId(`job-card-${job.id}`)).not.toBeInTheDocument()
+    })
   })
 
-  it('filters jobs by location', () => {
+  it('filters jobs by location', async () => {
     render(<JobsPage />)
-    
-    // Find and change the location select
+
+    // Select Beijing location
     const locationSelect = screen.getByRole('combobox', { name: '按地点筛选' })
     fireEvent.change(locationSelect, { target: { value: '北京' } })
-    
+
     // Check if only Beijing jobs are shown
-    expect(screen.getByText('Software Engineer')).toBeInTheDocument()
-    expect(screen.queryByText('Product Manager')).not.toBeInTheDocument()
+    const beijingJobs = mockJobs.filter(job => job.location === '北京')
+    const nonBeijingJobs = mockJobs.filter(job => job.location !== '北京')
+
+    // Verify Beijing jobs are visible
+    beijingJobs.forEach(job => {
+      expect(screen.getByTestId(`job-card-${job.id}`)).toBeInTheDocument()
+    })
+
+    // Verify non-Beijing jobs are not visible
+    nonBeijingJobs.forEach(job => {
+      expect(screen.queryByTestId(`job-card-${job.id}`)).not.toBeInTheDocument()
+    })
   })
 
   it('displays no results message when no jobs found', () => {
     ;(getAllJobs as jest.Mock).mockReturnValue([])
     render(<JobsPage />)
-    
+
     expect(screen.getByText('暂无符合条件的职位')).toBeInTheDocument()
   })
 
   it('displays job details in cards', () => {
     render(<JobsPage />)
-    
-    // Check if job details are displayed in cards
+
     mockJobs.forEach(job => {
-      expect(screen.getByText(job.title)).toBeInTheDocument()
-      expect(screen.getByText(`${mockDepartments.find(d => d.id === job.department)?.name} · ${job.location}`)).toBeInTheDocument()
-      expect(screen.getByText(`${job.type} · ${job.experience}`)).toBeInTheDocument()
-      expect(screen.getByText(job.salary)).toBeInTheDocument()
-      expect(screen.getByText(job.description)).toBeInTheDocument()
+      const jobCard = screen.getByTestId(`job-card-${job.id}`)
+
+      // Check all job details are displayed correctly
+      expect(within(jobCard).getByText(job.title)).toBeInTheDocument()
+      expect(within(jobCard).getByTestId(`job-location-${job.id}`)).toHaveTextContent(job.location)
+      expect(within(jobCard).getByTestId(`job-type-${job.id}`)).toHaveTextContent(job.type)
+      expect(within(jobCard).getByText(job.description)).toBeInTheDocument()
+      expect(within(jobCard).getByText(`发布日期：${job.postedDate}`)).toBeInTheDocument()
+
+      // Check details link
+      const detailsLink = within(jobCard).getByText('查看详情')
+      expect(detailsLink).toBeInTheDocument()
+      expect(detailsLink.closest('a')).toHaveAttribute('href', `/jobs/${job.id}`)
     })
   })
 })

@@ -65,6 +65,7 @@ export default function JobsPage() {
           {filteredJobs.map(job => (
             <div
               key={job.id}
+              data-testid={`job-card-${job.id}`}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
             >
               <div className="mb-4">
@@ -72,9 +73,9 @@ export default function JobsPage() {
                   {job.title}
                 </h3>
                 <div className="flex items-center gap-2 text-gray-600 text-sm mb-4">
-                  <span>{job.location}</span>
+                  <span data-testid={`job-location-${job.id}`}>{job.location}</span>
                   <span>•</span>
-                  <span>{job.type}</span>
+                  <span data-testid={`job-type-${job.id}`}>{job.type}</span>
                 </div>
                 <p className="text-gray-600 line-clamp-3 mb-4">
                   {job.description}

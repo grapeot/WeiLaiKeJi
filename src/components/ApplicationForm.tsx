@@ -21,19 +21,23 @@ export function ApplicationForm({ jobId, jobTitle }: ApplicationFormProps) {
     setError('')
 
     const formData = new FormData(e.currentTarget)
-    
+
     try {
+      console.log('Submitting form...')
       const response = await fetch('/api/applications', {
         method: 'POST',
         body: formData,
       })
 
       if (!response.ok) {
+        console.log('Response not ok:', response.status)
         throw new Error('提交失败')
       }
 
+      console.log('Form submitted successfully')
       setSuccess(true)
     } catch (err) {
+      console.log('Error submitting form:', err)
       setError(err instanceof Error ? err.message : '提交失败')
     } finally {
       setIsSubmitting(false)
@@ -54,7 +58,7 @@ export function ApplicationForm({ jobId, jobTitle }: ApplicationFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" role="form">
       <input type="hidden" name="jobId" value={jobId} />
       
       <div className="space-y-4">
