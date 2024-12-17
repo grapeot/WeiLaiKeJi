@@ -43,7 +43,9 @@ export function ApplicationForm({ jobId, jobTitle }: ApplicationFormProps) {
   if (success) {
     return (
       <div className="text-center py-8">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">申请已提交</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+          申请已提交
+        </h3>
         <p className="text-gray-600">
           感谢您申请 {jobTitle} 职位。我们会尽快审核您的申请并与您联系。
         </p>
