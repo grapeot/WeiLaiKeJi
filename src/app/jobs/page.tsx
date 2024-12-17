@@ -2,38 +2,25 @@
 
 import { useState } from 'react'
 import { getAllJobs, getAllDepartments, getAllLocations } from '@/lib/jobs'
-import { Select } from '@/components/ui/Select'
 import Link from 'next/link'
 
 export default function JobsPage() {
   const [selectedDepartment, setSelectedDepartment] = useState('')
   const [selectedLocation, setSelectedLocation] = useState('')
 
-  const allJobs = getAllJobs()
+  const jobs = getAllJobs()
   const departments = getAllDepartments()
   const locations = getAllLocations()
 
-  const filteredJobs = allJobs.filter(job => {
-    const matchDepartment = !selectedDepartment || job.department === selectedDepartment
-    const matchLocation = !selectedLocation || job.location === selectedLocation
-    return matchDepartment && matchLocation
+  const filteredJobs = jobs.filter((job) => {
+    if (selectedDepartment && job.department !== selectedDepartment) {
+      return false
+    }
+    if (selectedLocation && job.location !== selectedLocation) {
+      return false
+    }
+    return true
   })
-
-  const departmentOptions = [
-    { value: '', label: '所有部门' },
-    ...departments.map(dept => ({
-      value: dept.id,
-      label: dept.name
-    }))
-  ]
-
-  const locationOptions = [
-    { value: '', label: '所有地点' },
-    ...locations.map(location => ({
-      value: location,
-      label: location
-    }))
-  ]
 
   return (
     <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
@@ -47,51 +34,73 @@ export default function JobsPage() {
         </div>
 
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-          <Select
-            options={departmentOptions}
-            value={selectedDepartment}
-            onChange={setSelectedDepartment}
-            label="按部门筛选"
-          />
-          <Select
-            options={locationOptions}
-            value={selectedLocation}
-            onChange={setSelectedLocation}
-            label="按地点筛选"
-          />
+          <div className="flex-1">
+            <label htmlFor="department-select" className="block text-sm font-medium text-gray-700 mb-1">
+              按部门筛选
+            </label>
+            <select
+              id="department-select"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+              aria-label="按部门筛选"
+            >
+              <option value="">所有部门</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex-1">
+            <label htmlFor="location-select" className="block text-sm font-medium text-gray-700 mb-1">
+              按地点筛选
+            </label>
+            <select
+              id="location-select"
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+              aria-label="按地点筛选"
+            >
+              <option value="">所有地点</option>
+              {locations.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredJobs.map(job => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredJobs.map((job) => (
+            <article
               key={job.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+              role="article"
+              aria-label={job.title}
             >
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {job.title}
-                </h3>
-                <div className="flex items-center gap-2 text-gray-600 text-sm mb-4">
-                  <span>{job.location}</span>
-                  <span>•</span>
-                  <span>{job.type}</span>
-                </div>
-                <p className="text-gray-600 line-clamp-3 mb-4">
-                  {job.description}
-                </p>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-sm">
-                  发布日期：{job.postedDate}
+              <h2 className="text-2xl font-semibold mb-2">{job.title}</h2>
+              <p className="text-gray-600 mb-4">{job.description}</p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                  {job.location}
                 </span>
-                <Link
-                  href={`/jobs/${job.id}`}
-                  className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:pointer-events-none disabled:opacity-50 bg-primary-600 text-white hover:bg-primary-700 h-9 px-4"
-                >
-                  查看详情
-                </Link>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100">
+                  {job.type}
+                </span>
               </div>
-            </div>
+              <p className="text-sm text-gray-500">发布日期：{job.postedDate}</p>
+              <Link
+                href={`/jobs/${job.id}`}
+                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                查看详情
+              </Link>
+            </article>
           ))}
         </div>
 

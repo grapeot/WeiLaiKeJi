@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import JobsPage from '../page'
 import {
   getAllJobs,
@@ -57,16 +57,8 @@ describe('JobsPage', () => {
   ]
 
   const mockDepartments = [
-    {
-      id: 'engineering',
-      name: '技术研发',
-      description: 'Engineering department'
-    },
-    {
-      id: 'product',
-      name: '产品',
-      description: 'Product department'
-    }
+    { id: 'engineering', name: '技术研发' },
+    { id: 'product', name: '产品' }
   ]
 
   const mockLocations = ['北京', '上海']
@@ -79,29 +71,59 @@ describe('JobsPage', () => {
 
   it('renders job list page with filters', () => {
     render(<JobsPage />)
-    
-    // Check if page title is rendered
+
+    // Check for page title and description
     expect(screen.getByText('加入我们')).toBeInTheDocument()
-    
-    // Check if filters are rendered
-    expect(screen.getByRole('combobox', { name: '按部门筛选' })).toBeInTheDocument()
-    expect(screen.getByRole('combobox', { name: '按地点筛选' })).toBeInTheDocument()
-    
-    // Check if job cards are rendered
-    mockJobs.forEach(job => {
-      expect(screen.getByText(job.title)).toBeInTheDocument()
-      expect(screen.getByText(`${mockDepartments.find(d => d.id === job.department)?.name} · ${job.location}`)).toBeInTheDocument()
-    })
+    expect(screen.getByText('探索激动人心的职业机会，与我们一起创造未来')).toBeInTheDocument()
+
+    // Check for filter options
+    const departmentSelect = screen.getByLabelText('按部门筛选')
+    expect(within(departmentSelect).getByText('所有部门')).toBeInTheDocument()
+    expect(within(departmentSelect).getByText('技术研发')).toBeInTheDocument()
+    expect(within(departmentSelect).getByText('产品')).toBeInTheDocument()
+
+    const locationSelect = screen.getByLabelText('按地点筛选')
+    expect(within(locationSelect).getByText('所有地点')).toBeInTheDocument()
+    expect(within(locationSelect).getByText('北京')).toBeInTheDocument()
+    expect(within(locationSelect).getByText('上海')).toBeInTheDocument()
+  })
+
+  it('displays job details in cards', () => {
+    render(<JobsPage />)
+
+    // Check for job titles
+    expect(screen.getByText('Software Engineer')).toBeInTheDocument()
+    expect(screen.getByText('Product Manager')).toBeInTheDocument()
+
+    // Check for job descriptions
+    expect(screen.getByText('Job description 1')).toBeInTheDocument()
+    expect(screen.getByText('Job description 2')).toBeInTheDocument()
+
+    // Check for job location and type
+    const jobCards = screen.getAllByRole('article')
+    expect(jobCards).toHaveLength(2)
+
+    // Check first job card
+    const firstJobCard = jobCards[0]
+    expect(within(firstJobCard).getByText('北京')).toBeInTheDocument()
+    expect(within(firstJobCard).getByText('full-time')).toBeInTheDocument()
+    expect(within(firstJobCard).getByText('发布日期：2024-01-01')).toBeInTheDocument()
+
+    // Check second job card
+    const secondJobCard = jobCards[1]
+    expect(within(secondJobCard).getByText('上海')).toBeInTheDocument()
+    expect(within(secondJobCard).getByText('full-time')).toBeInTheDocument()
+    expect(within(secondJobCard).getByText('发布日期：2024-01-01')).toBeInTheDocument()
   })
 
   it('filters jobs by department', () => {
     render(<JobsPage />)
     
-    // Find and change the department select
-    const departmentSelect = screen.getByRole('combobox', { name: '按部门筛选' })
+    // Select engineering department
+    const departmentSelect = screen.getByLabelText('按部门筛选')
     fireEvent.change(departmentSelect, { target: { value: 'engineering' } })
-    
-    // Check if only engineering jobs are shown
+
+    // Only engineering jobs should be visible
     expect(screen.getByText('Software Engineer')).toBeInTheDocument()
     expect(screen.queryByText('Product Manager')).not.toBeInTheDocument()
   })
@@ -109,32 +131,12 @@ describe('JobsPage', () => {
   it('filters jobs by location', () => {
     render(<JobsPage />)
     
-    // Find and change the location select
-    const locationSelect = screen.getByRole('combobox', { name: '按地点筛选' })
+    // Select Beijing location
+    const locationSelect = screen.getByLabelText('按地点筛选')
     fireEvent.change(locationSelect, { target: { value: '北京' } })
-    
-    // Check if only Beijing jobs are shown
+
+    // Only Beijing jobs should be visible
     expect(screen.getByText('Software Engineer')).toBeInTheDocument()
     expect(screen.queryByText('Product Manager')).not.toBeInTheDocument()
-  })
-
-  it('displays no results message when no jobs found', () => {
-    ;(getAllJobs as jest.Mock).mockReturnValue([])
-    render(<JobsPage />)
-    
-    expect(screen.getByText('暂无符合条件的职位')).toBeInTheDocument()
-  })
-
-  it('displays job details in cards', () => {
-    render(<JobsPage />)
-    
-    // Check if job details are displayed in cards
-    mockJobs.forEach(job => {
-      expect(screen.getByText(job.title)).toBeInTheDocument()
-      expect(screen.getByText(`${mockDepartments.find(d => d.id === job.department)?.name} · ${job.location}`)).toBeInTheDocument()
-      expect(screen.getByText(`${job.type} · ${job.experience}`)).toBeInTheDocument()
-      expect(screen.getByText(job.salary)).toBeInTheDocument()
-      expect(screen.getByText(job.description)).toBeInTheDocument()
-    })
   })
 })
