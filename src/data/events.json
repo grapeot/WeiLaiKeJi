@@ -1,0 +1,157 @@
+{
+  "events": [
+    {
+      "id": "campus-talk-001",
+      "title": "2024届校园招聘宣讲会",
+      "type": "campus_talk",
+      "startTime": "2024-12-20T19:00:00+08:00",
+      "endTime": "2024-12-20T21:00:00+08:00",
+      "location": "北京大学计算机科学与技术学院报告厅",
+      "address": "北京市海淀区颐和园路5号",
+      "description": "我们诚挚邀请各位同学参加2024届校园招聘宣讲会。在这里，你将了解到我们的企业文化、发展方向以及各个岗位的详细信息。我们的技术负责人和HR团队将现场为大家答疑解惑。",
+      "agenda": [
+        {
+          "time": "19:00-19:30",
+          "title": "公司介绍",
+          "speaker": "张三",
+          "role": "CEO"
+        },
+        {
+          "time": "19:30-20:00",
+          "title": "技术团队介绍",
+          "speaker": "李四",
+          "role": "CTO"
+        },
+        {
+          "time": "20:00-20:30",
+          "title": "招聘岗位介绍",
+          "speaker": "王五",
+          "role": "HR总监"
+        },
+        {
+          "time": "20:30-21:00",
+          "title": "现场问答环节",
+          "speaker": "全体",
+          "role": ""
+        }
+      ],
+      "requirements": [
+        "请携带简历",
+        "提前准备问题",
+        "建议正装出席"
+      ],
+      "capacity": 200,
+      "registered": 150,
+      "image": "/images/events/campus-talk-001.jpg"
+    },
+    {
+      "id": "tech-sharing-001",
+      "title": "深度学习在推荐系统中的应用",
+      "type": "tech_sharing",
+      "startTime": "2024-12-25T14:00:00+08:00",
+      "endTime": "2024-12-25T16:00:00+08:00",
+      "location": "线上直播",
+      "address": "腾讯会议",
+      "description": "本次技术分享会将深入探讨深度学习在推荐系统中的实际应用。我们将分享一些实际案例，并讨论如何解决在实践中遇到的各种挑战。",
+      "agenda": [
+        {
+          "time": "14:00-14:45",
+          "title": "推荐系统架构介绍",
+          "speaker": "赵六",
+          "role": "资深算法工程师"
+        },
+        {
+          "time": "14:45-15:30",
+          "title": "深度学习模型实践",
+          "speaker": "钱七",
+          "role": "机器学习专家"
+        },
+        {
+          "time": "15:30-16:00",
+          "title": "问答环节",
+          "speaker": "全体",
+          "role": ""
+        }
+      ],
+      "requirements": [
+        "需要提前安装腾讯会议",
+        "建议有机器学习基础"
+      ],
+      "capacity": 500,
+      "registered": 320,
+      "image": "/images/events/tech-sharing-001.jpg"
+    },
+    {
+      "id": "workshop-001",
+      "title": "前端工程化实践工作坊",
+      "type": "workshop",
+      "startTime": "2024-12-28T10:00:00+08:00",
+      "endTime": "2024-12-28T17:00:00+08:00",
+      "location": "公司总部",
+      "address": "北京市朝阳区望京SOHO",
+      "description": "这是一个实践性质的工作坊，我们将带领大家一步步搭建一个完整的前端工程化体系。包括项目脚手架、构建工具、测试框架、CI/CD等内容。",
+      "agenda": [
+        {
+          "time": "10:00-11:30",
+          "title": "现代前端工程化概述",
+          "speaker": "孙八",
+          "role": "前端架构师"
+        },
+        {
+          "time": "11:30-12:30",
+          "title": "午餐交流",
+          "speaker": "",
+          "role": ""
+        },
+        {
+          "time": "13:30-15:00",
+          "title": "工程化工具链搭建",
+          "speaker": "周九",
+          "role": "高级前端工程师"
+        },
+        {
+          "time": "15:15-16:30",
+          "title": "实战演练",
+          "speaker": "全体",
+          "role": ""
+        },
+        {
+          "time": "16:30-17:00",
+          "title": "总结与展望",
+          "speaker": "孙八",
+          "role": "前端架构师"
+        }
+      ],
+      "requirements": [
+        "需要携带笔记本电脑",
+        "安装 Node.js 16+",
+        "有一定的前端开发经验"
+      ],
+      "capacity": 30,
+      "registered": 28,
+      "image": "/images/events/workshop-001.jpg"
+    }
+  ],
+  "eventTypes": [
+    {
+      "id": "campus_talk",
+      "name": "校园宣讲会",
+      "description": "走进校园，与学生面对面交流"
+    },
+    {
+      "id": "tech_sharing",
+      "name": "技术分享会",
+      "description": "分享前沿技术和实践经验"
+    },
+    {
+      "id": "workshop",
+      "name": "实践工作坊",
+      "description": "动手实践，深入学习"
+    },
+    {
+      "id": "career_fair",
+      "name": "招聘会",
+      "description": "现场面试，直接发放offer"
+    }
+  ]
+}

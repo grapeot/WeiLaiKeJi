@@ -1,0 +1,40 @@
+{
+  "jobs": [
+    {
+      "id": "eng-001",
+      "title": "高级软件工程师",
+      "department": "工程部",
+      "location": "北京",
+      "type": "全职",
+      "description": "加入我们的工程团队，构建前沿技术解决方案，塑造技术的未来。",
+      "postedDate": "2023-12-01"
+    },
+    {
+      "id": "prod-001",
+      "title": "产品经理",
+      "department": "产品部",
+      "location": "上海",
+      "type": "全职",
+      "description": "领导产品战略，与跨职能团队合作，打造卓越的用户体验。",
+      "postedDate": "2023-12-05"
+    },
+    {
+      "id": "des-001",
+      "title": "UI/UX设计师",
+      "department": "设计部",
+      "location": "深圳",
+      "type": "全职",
+      "description": "创造美观直观的用户界面，为用户带来愉悦的使用体验。",
+      "postedDate": "2023-12-10"
+    },
+    {
+      "id": "mkt-001",
+      "title": "市场经理",
+      "department": "市场部",
+      "location": "北京",
+      "type": "全职",
+      "description": "推动业务增长，建立和维护与企业客户的深厚关系。",
+      "postedDate": "2023-12-15"
+    }
+  ]
+}

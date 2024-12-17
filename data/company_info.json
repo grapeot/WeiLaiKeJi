@@ -1,0 +1,106 @@
+{
+  "company_name": "未来科技",
+  "tagline": "用科技创造未来",
+  "about": {
+    "description": "未来科技是一家致力于创新的科技公司，专注于打造塑造数字化转型未来的解决方案。自2020年成立以来，我们迅速成长为云计算、人工智能和企业软件解决方案领域的领导者。",
+    "mission": "通过前沿科技解决方案赋能企业和个人，推动增长、创新和可持续发展。",
+    "vision": "成为全球技术进步的催化剂，通过创新解决方案创造积极影响。"
+  },
+  "culture": {
+    "values": [
+      {
+        "title": "创新为先",
+        "description": "在一切工作中拥抱创造力和前瞻性思维。"
+      },
+      {
+        "title": "协作卓越",
+        "description": "我们相信伟大的想法来自多元化团队的共同努力。"
+      },
+      {
+        "title": "客户成功",
+        "description": "客户的成功就是我们的成功。"
+      },
+      {
+        "title": "持续学习",
+        "description": "我们培养持续成长和发展的文化。"
+      }
+    ],
+    "perks_and_benefits": [
+      {
+        "category": "健康与福祉",
+        "items": [
+          "全面的医疗保险",
+          "心理健康支持",
+          "年度健康补贴",
+          "健身房会员费报销"
+        ]
+      },
+      {
+        "category": "工作生活平衡",
+        "items": [
+          "灵活工作时间",
+          "远程工作选项",
+          "无限带薪休假",
+          "带薪育儿假"
+        ]
+      },
+      {
+        "category": "成长与发展",
+        "items": [
+          "学习发展基金",
+          "参会支持",
+          "导师计划",
+          "内部晋升机会"
+        ]
+      },
+      {
+        "category": "团队建设",
+        "items": [
+          "定期团建活动",
+          "每周happy hour",
+          "生日庆祝",
+          "节日礼品"
+        ]
+      }
+    ]
+  },
+  "departments": [
+    {
+      "name": "工程部",
+      "description": "打造创新技术解决方案",
+      "icon": "CodeBracketIcon"
+    },
+    {
+      "name": "产品部",
+      "description": "设计用户友好的产品体验",
+      "icon": "CubeIcon"
+    },
+    {
+      "name": "设计部",
+      "description": "创造美观实用的界面设计",
+      "icon": "PaintBrushIcon"
+    },
+    {
+      "name": "市场部",
+      "description": "推广产品价值和品牌影响力",
+      "icon": "ChartBarIcon"
+    }
+  ],
+  "locations": [
+    {
+      "city": "北京",
+      "address": "朝阳区望京SOHO",
+      "description": "总部办公室"
+    },
+    {
+      "city": "上海",
+      "address": "浦东新区陆家嘴",
+      "description": "研发中心"
+    },
+    {
+      "city": "深圳",
+      "address": "南山区科技园",
+      "description": "创新中心"
+    }
+  ]
+}
